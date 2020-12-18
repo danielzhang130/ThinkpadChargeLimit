@@ -1,0 +1,3 @@
+Convenience program to change battery charging limit on a Thinkpad.
+
+Requires ChargeThreshold.exe from Lenovo https://forums.lenovo.com/t5/Lenovo-Vantage-Knowledge-Base/Q-amp-A-setting-a-ThinkPad-battery-charge-threshold-by-script/ta-p/4345631

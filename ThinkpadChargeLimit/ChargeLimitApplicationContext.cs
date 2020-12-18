@@ -57,7 +57,6 @@ namespace ThinkpadChargeLimit
             {
                 chargeLimit = int.Parse(menuItem.Text.Substring(0, menuItem.Text.IndexOf('%')));
                 menuItem.Checked = true;
-                // todo needed?
                 prevChecked.Checked = false;
                 prevChecked = menuItem;
 
