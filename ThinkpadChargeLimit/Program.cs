@@ -13,7 +13,7 @@ namespace ThinkpadChargeLimit
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ChargeLimitApplicationContext());
+            Application.Run(new ChargeLimitApplicationContext(new ChargeThresholdWrapper()));
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]

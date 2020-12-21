@@ -11,15 +11,21 @@ namespace ThinkpadChargeLimit
         private readonly NotifyIcon notifyIcon;
         private readonly ChargeThresholdWrapper wrapper;
 
+        private readonly MenuItem fullChargeMenuItem;
+        private readonly MenuItem limitsMenuItem;
+
         private int chargeLimit;
         private MenuItem prevChecked;
 
-        public ChargeLimitApplicationContext()
+        private FullChargeHandler fullChargeHandler;
+
+        public ChargeLimitApplicationContext(ChargeThresholdWrapper _wrapper)
         {
-            wrapper = new ChargeThresholdWrapper();
+            wrapper = _wrapper;
 
             chargeLimit = wrapper.Limit;
 
+            fullChargeMenuItem = new MenuItem("Fully Charge Once", new EventHandler(FullyChargeOnce));
             MenuItem exitMenuItem = new MenuItem("Exit", new EventHandler(Exit));
 
             MenuItem[] limitItems = new MenuItem[6];
@@ -38,16 +44,50 @@ namespace ThinkpadChargeLimit
                 }
                 j++;
             }
-            MenuItem limitsMenuItem = new MenuItem("Change Charge Limit", limitItems);
+            limitsMenuItem = new MenuItem("Change Charge Limit", limitItems);
 
             notifyIcon = new NotifyIcon
             {
                 ContextMenu = new ContextMenu(new MenuItem[]
-                    { limitsMenuItem, exitMenuItem }),
+                    { limitsMenuItem, fullChargeMenuItem, exitMenuItem }),
                 Visible = true
             };
-            notifyIcon.ContextMenu.Popup += new EventHandler(OnShowMenu);
+            notifyIcon.ContextMenu.Popup += new EventHandler(UpdateState);
 
+            UpdateState();
+        }
+
+        private void FullyChargeOnce(object sender, EventArgs e)
+        {
+            if (fullChargeMenuItem.Checked)
+            {
+                fullChargeHandler.Cancel();
+
+                fullChargeMenuItem.Checked = false;
+                limitsMenuItem.Enabled = true;
+            }
+            else
+            {
+                fullChargeHandler = new FullChargeHandler(wrapper,
+                                          new ThinkPowerStatus(),
+                                          new ThinkTimer(),
+                                          new EventHandler(FullyChargedCallback));
+
+                fullChargeMenuItem.Checked = true;
+                limitsMenuItem.Enabled = false;
+            }
+            UpdateState();
+        }
+
+        private void FullyChargedCallback(object sender, EventArgs e)
+        {
+            fullChargeMenuItem.Checked = false;
+            limitsMenuItem.Enabled = true;
+            
+            notifyIcon.ShowBalloonTip(15000,
+                                      "Battery is fully charged",
+                                      "Battery charging limit reset to " + chargeLimit + "%",
+                                      ToolTipIcon.Info);
             UpdateState();
         }
 
@@ -69,12 +109,7 @@ namespace ThinkpadChargeLimit
             }
         }
 
-        private void OnShowMenu(object sender, EventArgs e)
-        {
-            UpdateState();
-        }
-
-        private void UpdateState()
+        private void UpdateState(object sender = null, EventArgs e = null)
         {
             if (wrapper.HasLimit)
             {

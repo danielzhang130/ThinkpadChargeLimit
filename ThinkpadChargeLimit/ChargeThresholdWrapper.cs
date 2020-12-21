@@ -3,7 +3,7 @@ using System.IO;
 
 namespace ThinkpadChargeLimit
 {
-    internal class ChargeThresholdWrapper
+    public class ChargeThresholdWrapper
     {
         private static readonly string EXE_PATH = "ChargeThreshold.exe";
         private static readonly string STOP_AT = "Stop at ";
@@ -16,7 +16,7 @@ namespace ThinkpadChargeLimit
             }
         }
 
-        internal int Limit
+        public virtual int Limit
         {
             get
             {
